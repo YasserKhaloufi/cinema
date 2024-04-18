@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <link href="css/style.css" rel="stylesheet"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="js/interface.js"></script>
+        <script src="js/utils.js"></script>
+    </head>
+
+    <body th:attr="onload='loadFilmByCod(' + ${codFilm} + ')'">
+        <table>
+            <thead>
+                <tr>
+                    <th>Titolo</th>
+                    <th>AnnoProduzione</th>
+                    <th>Nazionalità</th>
+                    <th>Regista</th>
+                    <th>Genere</th>
+                    <th>Durata</th>
+                    <th>Locandina</th>
+                </tr>
+            </thead>
+
+            <tbody id="dettagliFilm">
+            </tbody>
+
+        </table>
+    
+
+    <p class="errore" id="errore"></p>
+
+    <a href="/elencoFilm">Indietro</a> 
+
+    <!-- pulsante torna a login -->
+    <a href="/logout" class="logout-link">Logout</a> <!-- Link per il logout -->
+    </body>
+</html>

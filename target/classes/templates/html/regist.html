@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <link href="css/style.css" rel="stylesheet"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="js/interface.js"></script>
+        <script src="js/utils.js"></script>
+    </head>
+
+    <body>
+        <div class="center">
+        <h1>Registrati</h1>            
+            <label for="username">Username:</label>
+            <input type="text" name="username" id="username">
+            <br><br>
+
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password">
+
+            <br><br>
+
+            <label for="passR">Conferma Password:</label>
+            <input type="password" name="passR" id="passR">
+
+            <br><br>
+
+            <button id="registButton" onclick="submitUserInfo('/chkRegist')">Conferma</button>
+            <button id="clearButton" onclick="clearForm()">Cancella</button>
+                
+            <!-- eventuale errore riscontrato da Java-->
+            <p class="errore" th:if="${errore}" th:text="${errore}"></p>
+            <!-- eventuale errore riscontrato da Js-->
+            <p class="errore" id="errore"></p>
+
+            <!-- Pulsante per tornare alla pagina di login-->
+            <p><a href="/">Torna alla pagina di login</a></p>
+        </div>
+    </body>
+
+
+</html>

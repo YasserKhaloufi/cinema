@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <link href="style.css" rel="stylesheet"/>
+</head>
+
+<body>
+    <div class="center">
+    <h1>Benvenuto!</h1>
+        <form action="#" th:action="@{/}" method="get"> <!-- rimando ad una pagina a caso giusto per vedere se funziona-->
+            
+            <br>
+            <!-- TO DO: se hai delle credenziali salvate fai si che vengano riscritte automaticamente -->
+            <label for="username">Username:</label>
+            <input type="text" name="username" th:value="${username}">
+            
+            <br><br>
+
+            <label for="password">Password:</label>
+            <input type="password" name="password" th:value="${password}">
+            
+            <!-- TO DO: eventuale errore riscontrato dalla successiva pagina di check-->
+            <p class="errore" th:text="${errorMessage}">
+            </p>
+            
+            <input type="submit" value="Login">
+            <input type="reset" value="Cancella">
+        
+        </form>
+    </div>
+
+</body>
+
+</html>

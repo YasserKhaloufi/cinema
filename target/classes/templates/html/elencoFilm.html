@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <link href="css/style.css" rel="stylesheet"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="js/interface.js"></script>
+        <script src="js/utils.js"></script>
+    </head>
+
+    <body>
+        <div>
+            <select id="genere">
+                <option value="">Tutti i generi</option>
+                <option th:each="genere : ${generi}" th:value="${genere}" th:text="${genere}"></option>
+            </select>
+            <button onclick="loadFilms($('#genere').val())">Filtra</button>
+        </div>
+
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>Titolo</th>
+                    <th>Genere</th>
+                    <th>Durata</th>
+                    <th>Locandina</th>
+                    <th th:if="${isAdmin}">Elimina</th>
+                </tr>
+            </thead>
+
+            <tbody id="listaFilm">
+                <tr th:each="film : ${films}">
+                    <td><a th:href="@{/dettagliFilm(codFilm=${film.codFilm})}" th:text="${film.titolo}"></a></td>
+                    <td th:text="${film.genere}"></td>
+                    <td th:text="${film.durata}"></td>
+                    <td><img th:src="@{/Images/{image}(image=${film.immagine})}" alt="locandina" width="100" height="150"></td>
+                    <td th:if="${isAdmin}"><button th:onclick="'deleteFilmByCod(' + ${film.codFilm} + ')'">Elimina</button></td>
+                </tr>
+            </tbody>
+            
+        </table>
+
+        <!-- Link alla pagina di inserimento film -->
+        <a href="/inserisciFilm">Inserisci film</a>
+
+        <!-- eventuale errore riscontrato da Java-->
+        <p class="errore" th:if="${errore}" th:text="${errore}"></p>
+
+        <!-- pulsante torna a login -->
+        <a href="/logout" class="logout-link">Logout</a> <!-- Link per il logout -->
+    </body>
+</html>

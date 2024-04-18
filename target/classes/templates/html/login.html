@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <link href="css/style.css" rel="stylesheet"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="js/interface.js"></script>
+        <script src="js/utils.js"></script>
+    </head>
+
+    <body>
+        <div class="center">
+        <h1>Benvenuto!</h1>
+                
+            <br>
+            <!-- TO DO: se hai delle credenziali salvate fai si che vengano riscritte automaticamente -->
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username">
+            
+            <br><br>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password">
+            
+            <!-- eventuale errore riscontrato da Java-->
+            <p class="errore" th:if="${errore}" th:text="${errore}"></p>
+            
+            <button id="loginButton" onclick="submitUserInfo('/chkLogin')">Login</button>
+            <button id="clearButton" onclick="clearForm()">Cancella</button>
+            
+            <a href="/regist">Registrati</a>
+        </div>
+    </body>
+
+</html>
