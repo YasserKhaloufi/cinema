@@ -50,4 +50,3 @@ In this case, ${message} is a placeholder. When Thymeleaf renders this template,
 You ensure you're referencing the correct placeholder by matching the name in the placeholder with the name of an attribute in your model. In the Spring MVC controller, you would add an attribute to the model like this:
 
 model.addAttribute("message", "Hello, World!");
- 

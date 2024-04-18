@@ -33,12 +33,14 @@ public class redirectController {
     // In origine era @GetMapping, ma dato che gli veniva inoltrata la richiesta inviata a /chkLogin (che è POST), ho dovuto cambiare il metodo per supportare entrambi i metodi di richiesta con la notazione @RequestMapping
     @RequestMapping(value = "/elencoFilm", method = {RequestMethod.GET, RequestMethod.POST})
     public String getFilmList(Model model, HttpSession session) {
-        // Utilizza il cookie di sessione admin per capire se l'utente è loggato o meno
-        Boolean isAdmin = (Boolean) session.getAttribute("Admin");
+        Boolean isAdmin = (Boolean) session.getAttribute("Admin"); // Utilizza il cookie di sessione admin per capire se l'utente è loggato o meno
+
         if(isAdmin != null) {
-            List<Film> films = getFilmList(); model.addAttribute("films", films); // (Servirà per la costruzione della tabella film, per capire se mostrare o meno il pulsante di cancellazione) 
-            List<String> generi = getGeneri(); model.addAttribute("generi", generi);
+            // Riempimento template
+            List<Film> films = getFilmList(); model.addAttribute("films", films); // Riempimento lista film
+            List<String> generi = getGeneri(); model.addAttribute("generi", generi); // Riempimento opzioni filtro genere
             
+            // (Servirà per la costruzione della tabella film, per capire se mostrare o meno il pulsante di cancellazione) 
             model.addAttribute("isAdmin", isAdmin);
             return "html/elencoFilm";
         } else {
