@@ -41,8 +41,8 @@
         </table>
 
         <!-- Link alla pagina di inserimento film -->
-        <a href="/inserisciFilm">Inserisci film</a>
-
+        <a th:if="${isAdmin}" href="/inserisciFilm">Inserisci film</a>
+        
         <!-- eventuale errore riscontrato da Java-->
         <p class="errore" th:if="${errore}" th:text="${errore}"></p>
 
