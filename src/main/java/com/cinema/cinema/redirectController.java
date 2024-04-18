@@ -11,14 +11,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.servlet.http.HttpSession;
 
 /*
-
-    Issue:
-        - Inserimento film
-        - Riordinare in sottocartelle senza rompere tutto
-        
  * TO DO:
-    Aggiungere un filtro in base al genere (pagina con textbox richiede via AJAX la lista di film filtrata)
-    implementare l'attivazione dell'account via mail e il recupero password
+    - implementare l'attivazione dell'account via mail e il recupero password
+    - Inserimento immagine
+    - Riordinare in sottocartelle senza rompere tutto
+
  */
 
 @Controller
