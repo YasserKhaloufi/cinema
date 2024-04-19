@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpSession;
 
  */
 
+// Controller per i redirect alle pagine (template)
 @Controller
 public class redirectController {
 
@@ -44,10 +45,10 @@ public class redirectController {
             
             // (Servirà per la costruzione della tabella film, per capire se mostrare o meno il pulsante di cancellazione) 
             model.addAttribute("isAdmin", sessionManager.isAdmin(session));
-            return "html/elencoFilm";
+            return Settings.filmListPage;
         } else {
-            model.addAttribute("errore", "Ti piacerebbe, eh? Devi loggarti prima!");
-            return "html/login";
+            model.addAttribute("errore", Settings.notLoggedInError);
+            return Settings.loginPage;
         }
     }
 
@@ -57,13 +58,11 @@ public class redirectController {
         if(sessionManager.isLoggedIn(session))
         {
             model.addAttribute("codFilm", codFilm);
-            return "html/dettagliFilm";
+            return Settings.filmDetailsPage;
         }
         else
-        {
-            model.addAttribute("errore", "Ti piacerebbe, eh? Devi loggarti prima!");
-            return "html/login";
-        }
+            model.addAttribute("errore", Settings.notLoggedInError);
+            return Settings.loginPage;
     }
 
     @GetMapping("/inserisciFilm")
@@ -73,15 +72,15 @@ public class redirectController {
          {
             // Qua è meglio non reloadare la pagina, quindi ritorno un JSON con l'esito dell'operazione che js si occuperà di gestire
             if(sessionManager.isAdmin(session))
-                return "html/inserisciFilm";
+                return Settings.insertFilmPage;
             else
-                model.addAttribute("errore", "Non sei admin");
-                return "html/login";    
+                model.addAttribute("errore", Settings.notAdminError);
+                return Settings.filmListPage;
         } 
         else
         {
-            model.addAttribute("errore", "Ti piacerebbe, eh? Devi loggarti prima!");
-            return "html/login";
+            model.addAttribute("errore", Settings.notLoggedInError);
+            return Settings.loginPage;
         }   
     }
 

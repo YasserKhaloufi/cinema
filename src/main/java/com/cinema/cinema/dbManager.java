@@ -7,6 +7,18 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+ * Nel modello MVC questa è la classe service: si colloca tra il Model e il Controller,
+ * per permettere al controller di accedere ai dati del model.
+ * 
+ * In spring sarebbe da indicare con l'annotazione @Service, che permette a spring di rilevare automaticamente la classe e 
+ * e di gestire la sua vita come un bean (oggetto gestito da spring). Tuttavia in questo caso non è necessario, in quanto
+ * la classe è già strutturata secondo il modello singleton manualmente.
+ * 
+ * L'annotazione @Service in Spring crea un Singleton per impostazione predefinita, quindi si potrebbe rimuovere
+ * la logica del Singleton manuale con @Service.
+ */
+
 // Design pattern: Singleton (una volta aperta la connessione, l'oggetto viene riciclato per ogni richiesta successiva)
 public class dbManager {
     private static dbManager instance;
@@ -170,7 +182,7 @@ public class dbManager {
     }
 
     // Per bindare un numero variabile di parametri nello statement (finchè sono di tipo stringa)
-    public PreparedStatement bindParams(String sql, List<String> parameters) {
+    private PreparedStatement bindParams(String sql, List<String> parameters) {
         try {
             PreparedStatement stmt = conn.prepareStatement(sql);
             for (int i = 0; i < parameters.size(); i++) {
