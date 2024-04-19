@@ -16,19 +16,16 @@ import jakarta.servlet.http.HttpSession;
 @Controller
 public class utilController {
 
-    // Metodo per ottenere la lista di film
-    private List<Film> getFilmList(String genere) {
-        return dbManager.getInstance(Settings.dbName, Settings.server, Settings.dbUser, Settings.dbPass).getFilms(genere);
-    }
+    dbManager conn = dbManager.getInstance(Settings.dbName, Settings.server, Settings.dbUser, Settings.dbPass); // Connessione al DB
 
-    @GetMapping("/getFilms") // Dopo gli opportuni controlli di sessione, ritorno l'elenco dei film
+
+    @GetMapping("/getFilms") 
     public Object getFilms(@RequestParam(required = false) String genere, Model model, HttpSession session)
     {
-        // Utilizza il cookie di sessione admin per capire se l'utente è loggato o meno
-        Boolean isAdmin = (Boolean) session.getAttribute("Admin");
-        if(isAdmin != null)
+        // Dopo gli opportuni controlli di sessione, ritorno l'elenco dei film
+        if(sessionManager.isLoggedIn(session))
         {
-            List<Film> films = getFilmList(genere); // Connessione al DB + richiesta lista film
+            List<Film> films = conn.getFilms(genere);
             return new ResponseEntity<>(JSONresponse.ok(films), HttpStatus.OK);
         }
         else // Se non è loggato, ritorna la pagina di login
@@ -40,10 +37,9 @@ public class utilController {
     public Object getFilm(@RequestParam Integer codFilm, Model model, HttpSession session)
     {
         // Utilizza il cookie di sessione admin per capire se l'utente è loggato o meno
-        Boolean isAdmin = (Boolean) session.getAttribute("Admin");
-        if(isAdmin != null)
+        if(sessionManager.isLoggedIn(session))
         {
-            Film film = dbManager.getInstance(Settings.dbName, Settings.server, Settings.dbUser, Settings.dbPass).getFilmByID(codFilm);
+            Film film = conn.getFilmByID(codFilm);
             return new ResponseEntity<>(JSONresponse.ok(film), HttpStatus.OK);
         }
         else
@@ -55,14 +51,12 @@ public class utilController {
     @GetMapping("/deleteFilm")
     public Object deleteFilm(@RequestParam Integer codFilm, Model model, HttpSession session)
     {
-        // Utilizza il cookie di sessione admin per capire se l'utente è loggato o meno
-        Boolean isAdmin = (Boolean) session.getAttribute("Admin");
-        if(isAdmin != null)
+        if(sessionManager.isLoggedIn(session))
         {
             // Qua è meglio non reloadare la pagina, quindi ritorno un JSON con l'esito dell'operazione che js si occuperà di gestire
-            if(isAdmin)
+            if(sessionManager.isAdmin(session))
             {
-                dbManager.getInstance(Settings.dbName, Settings.server, Settings.dbUser, Settings.dbPass).deleteFilm(codFilm);
+                conn.deleteFilm(codFilm);
                 return new ResponseEntity<>(JSONresponse.ok("Film eliminato"), HttpStatus.OK);
             }
             else
@@ -75,21 +69,20 @@ public class utilController {
         }
     }
 
+    // TO DO: implementare passaggio file immagine al server
     @PostMapping("/insertFilm")
     public Object insertFilm(@RequestBody Film film, Model model, HttpSession session)
     {
-        // Utilizza il cookie di sessione admin per capire se l'utente è loggato o meno
-        Boolean isAdmin = (Boolean) session.getAttribute("Admin");
-        if(isAdmin != null)
+        if(sessionManager.isLoggedIn(session))
         {
             // Qua è meglio non reloadare la pagina, quindi ritorno un JSON con l'esito dell'operazione che js si occuperà di gestire
-            if(isAdmin)
+            if(sessionManager.isAdmin(session))
             {
-                // var immagine = $('#immagine').val().split('\\').pop();
-                String path[] = film.getImmagine().split("\\\\");
-                String nomeImmagine = path[path.length - 1];
+                // prendi solo il nome dell'immagine
+                String path[] = film.getImmagine().split("\\\\"); String nomeImmagine = path[path.length - 1]; 
+                film.setImmagine(nomeImmagine);
 
-                dbManager.getInstance(Settings.dbName, Settings.server, Settings.dbUser, Settings.dbPass).insertFilm(film.getTitolo(), film.getAnnoProduzione(), film.getNazionalita(), film.getRegista(), film.getGenere(), film.getDurata(), nomeImmagine);
+                conn.insertFilm(film);
                 return new ResponseEntity<>(JSONresponse.ok("Film inserito"), HttpStatus.OK);
             }
             else

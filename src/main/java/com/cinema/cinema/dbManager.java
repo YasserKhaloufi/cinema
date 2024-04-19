@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,22 +19,23 @@ public class dbManager {
         return instance;
     }
 
+    // Costruttore
     private dbManager(String dbName, String serverName, String username, String password)
     {
         try {
-            conn = DriverManager.getConnection(serverName + dbName, username, password);
+            conn = DriverManager.getConnection(serverName + dbName, username, password); // Inizializzo la connessione al DB
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public boolean userExists(String username)
+    public boolean usernameExists(String username)
     {
         try {
-            PreparedStatement stat = bindParams(Settings.searchUtente, List.of(username));
+            PreparedStatement stmt = bindParams(Settings.searchUtente, List.of(username));
 
-            // if it returns more than 0 rows, the user exists
-            return stat.executeQuery().next(); // returns true if there is a next row, otherwise false
+            // se ritorna più di una riga, l'utente esiste
+            return stmt.executeQuery().next(); // ritorna true se c'è almeno una riga, false altrimenti
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -43,19 +43,16 @@ public class dbManager {
         }
     }
 
-    // For credentials check
-    public User searchForUser(String username, String password)
+    public User checkCredentials(String username, String password)
     {
         try {
             PreparedStatement stmt = bindParams(Settings.selectUtente, List.of(username, password));
 
-            // return the user id if the user exists, otherwise null
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                boolean isAdmin = rs.getBoolean("Admin");
-                Integer id = rs.getInt("ID");
-
-                return new User(id, username, password, isAdmin);
+            // se l'utente esiste, ritorna un oggetto User, altrimenti null
+            ResultSet result = stmt.executeQuery();
+            if (result.next()) {
+                boolean isAdmin = result.getBoolean("Admin"); Integer id = result.getInt("ID");
+                return new User(id, username, password, isAdmin); // La password è già md5
             } else {
                 return null;
             }
@@ -66,63 +63,38 @@ public class dbManager {
         }
     }
 
+    // registrazione utente
     public void insertUser(String username, String password)
     {
-        List <String> parameters = List.of(username, password);
-        PreparedStatement stmt = bindParams(Settings.insertUtente, parameters);
+        PreparedStatement stmt = bindParams(Settings.insertUtente, List.of(username, password));
         try {
             stmt.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    // So you don't have to write a different method each time the number of parameters changes (all of them are strings)
-    public PreparedStatement bindParams(String sql, List<String> parameters) {
-    try {
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        for (int i = 0; i < parameters.size(); i++) {
-            stmt.setString(i + 1, parameters.get(i));
-        }
-        return stmt;
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-    return null;
-    }
-
-    public void updateField(String table, String field, String value, String condition)
-    {
-        try {
-            PreparedStatement stmt = conn.prepareStatement("UPDATE " + table + " SET " + field + " = ? WHERE " + condition);
-            stmt.setString(1, value);
-            stmt.executeUpdate();
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /*In Java, non esiste un concetto di parametri opzionali come in altri linguaggi come Python o JavaScript. Tuttavia, puoi ottenere un comportamento simile utilizzando il sovraccarico dei metodi. Puoi creare un secondo metodo getFilms() che non accetta parametri e chiama il primo metodo getFilms() con genere impostato su null. */
-    public List<Film> getFilms() {
-        return getFilms(null);
     }
     
     public List<Film> getFilms(String genere) {
         try {
-            String query = Settings.selectFilms;
+            String sql = Settings.selectFilms;
+            boolean genereExists = false;
+
             if (genere != null && !genere.isEmpty()) {
-                query += " WHERE Genere = ?";
+                sql += " WHERE Genere = ?";
+                genereExists = true;
             }
-            PreparedStatement stmt = conn.prepareStatement(query);
-            if (genere != null && !genere.isEmpty()) {
+
+            PreparedStatement stmt = conn.prepareStatement(sql); // Solo dopo aver verificato di dover aggiungere la clause WHERE o meno costruisco lo statement
+
+            if (genereExists)
                 stmt.setString(1, genere);
-            }
-            ResultSet rs = stmt.executeQuery();
+            
+            ResultSet result = stmt.executeQuery();
             List<Film> ls = new ArrayList<>();
-            while (rs.next()) {
-                ls.add(new Film(rs.getInt("CodFilm"), rs.getString("Titolo"), rs.getInt("AnnoProduzione"), rs.getString("Nazionalità"), rs.getString("Regista"), rs.getString("Genere"), rs.getTime("Durata"), rs.getString("Immagine")));
-            }
+
+            while (result.next())
+                ls.add(new Film(result));
+            
             return ls;
         } catch (Exception e) {
             e.printStackTrace();
@@ -130,20 +102,42 @@ public class dbManager {
         }
     }
 
+    /*In Java, non esiste un concetto di parametri opzionali come in altri linguaggi come Python o JavaScript. Tuttavia, puoi ottenere un comportamento simile utilizzando il sovraccarico dei metodi. Puoi creare un secondo metodo getFilms() che non accetta parametri e chiama il primo metodo getFilms() con genere impostato su null. */
+    public List<Film> getFilms() {
+        return getFilms(null);
+    }
+
     public Film getFilmByID(Integer codFilm)
     {
         try {
-            PreparedStatement stmt = conn.prepareStatement(Settings.selectFilm);
-            stmt.setInt(1, codFilm);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return new Film(rs.getInt("CodFilm"), rs.getString("Titolo"), rs.getInt("AnnoProduzione"), rs.getString("Nazionalità"), rs.getString("Regista"), rs.getString("Genere"), rs.getTime("Durata"), rs.getString("Immagine"));
-            } else {
-                return null;
-            }
+                PreparedStatement stmt = conn.prepareStatement(Settings.selectFilm);
+                stmt.setInt(1, codFilm);
+                ResultSet result = stmt.executeQuery();
+                if (result.next()) {
+                    return new Film(result);
+                } else {
+                    return null;
+                }
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public void insertFilm(Film film)
+    {
+        try {
+            PreparedStatement stmt = conn.prepareStatement(Settings.insertFilm);
+            stmt.setString(1, film.getTitolo());
+            stmt.setInt(2, film.getAnnoProduzione());
+            stmt.setString(3, film.getNazionalita());
+            stmt.setString(4, film.getRegista());
+            stmt.setString(5, film.getGenere());
+            stmt.setTime(6, film.getDurata());
+            stmt.setString(7, film.getImmagine());
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -158,23 +152,6 @@ public class dbManager {
         }
     }
 
-    public void insertFilm(String titolo, Integer annoProduzione, String nazionalità, String regista, String genere, Time durata, String immagine)
-    {
-        try {
-            PreparedStatement stmt = conn.prepareStatement(Settings.insertFilm);
-            stmt.setString(1, titolo);
-            stmt.setInt(2, annoProduzione);
-            stmt.setString(3, nazionalità);
-            stmt.setString(4, regista);
-            stmt.setString(5, genere);
-            stmt.setTime(6, durata);
-            stmt.setString(7, immagine);
-            stmt.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    
     // getGeneri
     public List<String> getGeneri()
     {
@@ -189,6 +166,33 @@ public class dbManager {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    // Per bindare un numero variabile di parametri nello statement (finchè sono di tipo stringa)
+    public PreparedStatement bindParams(String sql, List<String> parameters) {
+        try {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            for (int i = 0; i < parameters.size(); i++) {
+                stmt.setString(i + 1, parameters.get(i)); // in JDBC il settaggio parte da 1
+            }
+            return stmt;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Per ora inutilizzato
+    public void updateField(String table, String field, String value, String condition)
+    {
+        try {
+            PreparedStatement stmt = conn.prepareStatement("UPDATE " + table + " SET " + field + " = ? WHERE " + condition);
+            stmt.setString(1, value);
+            stmt.executeUpdate();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

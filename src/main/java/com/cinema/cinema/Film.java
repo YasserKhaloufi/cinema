@@ -1,5 +1,7 @@
 package com.cinema.cinema;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Time;
 
 public class Film {
@@ -23,6 +25,19 @@ public class Film {
         this.Durata = time;
         this.Immagine = Immagine;
     }
+
+    // Costruttore da resultset
+    public Film(ResultSet result) throws SQLException {
+        this.CodFilm = result.getInt("CodFilm");
+        this.Titolo = result.getString("Titolo");
+        this.AnnoProduzione = result.getInt("AnnoProduzione");
+        this.Nazionalita = result.getString("Nazionalità");
+        this.Regista= result.getString("Regista");
+        this.Genere = result.getString("Genere");
+        this.Durata =  result.getTime("Durata");
+        this.Immagine = result.getString("Immagine");
+    }
+    
 
     public int getCodFilm() {
         return CodFilm;

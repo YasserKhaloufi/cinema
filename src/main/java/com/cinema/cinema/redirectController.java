@@ -20,6 +20,9 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class redirectController {
+
+    dbManager conn = dbManager.getInstance(Settings.dbName, Settings.server, Settings.dbUser, Settings.dbPass); // Connessione al DB
+
     @GetMapping("/")
     public String login() { // Reindirizza alla pagina di login
         return "html/login";
@@ -33,15 +36,14 @@ public class redirectController {
     // In origine era @GetMapping, ma dato che gli veniva inoltrata la richiesta inviata a /chkLogin (che è POST), ho dovuto cambiare il metodo per supportare entrambi i metodi di richiesta con la notazione @RequestMapping
     @RequestMapping(value = "/elencoFilm", method = {RequestMethod.GET, RequestMethod.POST})
     public String getFilmList(Model model, HttpSession session) {
-        Boolean isAdmin = (Boolean) session.getAttribute("Admin"); // Utilizza il cookie di sessione admin per capire se l'utente è loggato o meno
 
-        if(isAdmin != null) {
+        if(sessionManager.isLoggedIn(session)) {
             // Riempimento template
-            List<Film> films = getFilmList(); model.addAttribute("films", films); // Riempimento lista film
-            List<String> generi = getGeneri(); model.addAttribute("generi", generi); // Riempimento opzioni filtro genere
+            List<Film> films = conn.getFilms(); model.addAttribute("films", films); // Riempimento lista film
+            List<String> generi = conn.getGeneri(); model.addAttribute("generi", generi); // Riempimento opzioni filtro genere
             
             // (Servirà per la costruzione della tabella film, per capire se mostrare o meno il pulsante di cancellazione) 
-            model.addAttribute("isAdmin", isAdmin);
+            model.addAttribute("isAdmin", sessionManager.isAdmin(session));
             return "html/elencoFilm";
         } else {
             model.addAttribute("errore", "Ti piacerebbe, eh? Devi loggarti prima!");
@@ -49,21 +51,10 @@ public class redirectController {
         }
     }
 
-    // Metodo per ottenere la lista di film
-    private List<Film> getFilmList() {
-        return dbManager.getInstance(Settings.dbName, Settings.server, Settings.dbUser, Settings.dbPass).getFilms();
-    }
-
-    // Distinct dei generi
-    private List<String> getGeneri() {
-        return dbManager.getInstance(Settings.dbName, Settings.server, Settings.dbUser, Settings.dbPass).getGeneri();
-    }
-
     @GetMapping("/dettagliFilm")
     public String dettagliFilm(@RequestParam Integer codFilm, Model model, HttpSession session) { 
 
-        Boolean isAdmin = (Boolean) session.getAttribute("Admin");
-        if(isAdmin != null)
+        if(sessionManager.isLoggedIn(session))
         {
             model.addAttribute("codFilm", codFilm);
             return "html/dettagliFilm";
@@ -78,12 +69,10 @@ public class redirectController {
     @GetMapping("/inserisciFilm")
     public String inserisciFilm(Model model, HttpSession session) { 
 
-         // Utilizza il cookie di sessione admin per capire se l'utente è loggato o meno
-         Boolean isAdmin = (Boolean) session.getAttribute("Admin");
-         if(isAdmin != null)
+         if(sessionManager.isLoggedIn(session))
          {
             // Qua è meglio non reloadare la pagina, quindi ritorno un JSON con l'esito dell'operazione che js si occuperà di gestire
-            if(isAdmin)
+            if(sessionManager.isAdmin(session))
                 return "html/inserisciFilm";
             else
                 model.addAttribute("errore", "Non sei admin");
