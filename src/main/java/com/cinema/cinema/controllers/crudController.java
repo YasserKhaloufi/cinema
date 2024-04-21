@@ -1,5 +1,12 @@
 package com.cinema.cinema.controllers;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Base64;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -77,16 +84,20 @@ public class crudController {
     */
     // TO DO: implementare passaggio file immagine al server
     @PostMapping("/insertFilm")
-    public Object insertFilm(@RequestBody Film film, Model model, HttpSession session)
+    public Object insertFilm(@RequestBody Film film, Model model, HttpSession session) throws IOException
     {
         if(sessionManager.isLoggedIn(session))
         {
             // Qua è meglio non reloadare la pagina, quindi ritorno un JSON con l'esito dell'operazione che js si occuperà di gestire
             if(sessionManager.isAdmin(session))
             {
-                // prendi solo il nome dell'immagine
-                String path[] = film.getImmagine().split("\\\\"); String nomeImmagine = path[path.length - 1]; 
-                film.setImmagine(nomeImmagine);
+                // Decodifica la stringa base64
+                // byte[] decodedImg = Base64.getDecoder().decode(film.getImmagine().split(",")[1].getBytes(StandardCharsets.UTF_8));
+                // Path destinationFile = Paths.get(Settings.imgDir, film.getTitolo() + ".jpg");
+                // Files.write(destinationFile, decodedImg, StandardOpenOption.CREATE);
+
+                // Imposta il percorso dell'immagine al nome del file
+                film.setImmagine(film.getTitolo() + ".jpg");
 
                 conn.insertFilm(film);
                 return new ResponseEntity<>("Film inserito", HttpStatus.OK);

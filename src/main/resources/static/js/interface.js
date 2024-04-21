@@ -112,31 +112,43 @@ function inserisciFilm() {
         var ore = Math.floor(durataMinuti / 60), minuti = durataMinuti % 60, durata = new Date();
         durata.setHours(ore); durata.setMinutes(minuti); durata = durata.toISOString().slice(11, 19);
 
-        var immagine = $('#immagine').val();
+        // Leggi il file come data URL
+        var file = document.querySelector('#immagine').files[0];
+        var reader = new FileReader();
 
-        var film = {
-            titolo: $('#titolo').val(),
-            annoProduzione: $('#annoProduzione').val(),
-            nazionalita: $('#nazionalita').val(),
-            regista: $('#regista').val(),
-            genere: $('#genere').val(),
-            durata: durata,
-            immagine: immagine,
+        reader.onloadend = function() { // Quando la lettura è completata
+            var base64data = reader.result;
+
+            var film = {
+                titolo: $('#titolo').val(),
+                annoProduzione: $('#annoProduzione').val(),
+                nazionalita: $('#nazionalita').val(),
+                regista: $('#regista').val(),
+                genere: $('#genere').val(),
+                durata: durata,
+                immagine: base64data, // invia l'immagine come stringa base64
+            }
+
+            $.ajax({
+                url: '/insertFilm',
+                method: 'POST',
+                contentType: 'application/json', // Ricorda
+                data: JSON.stringify(film),
+
+                success: function (response) {
+                    window.location.href = "/elencoFilm"; // Reindirizza alla lista dei film
+                    loadFilms();
+                },
+                error: function (error) {
+                    $('#errore').text(error.responseText);
+                }
+            });
         }
 
-        $.ajax({
-            url: '/insertFilm',
-            method: 'POST',
-            contentType: 'application/json', // Ricorda
-            data: JSON.stringify(film),
+        /* La ragione per cui reader.readAsDataURL(file) è posto alla fine della funzione è perché prima di iniziare la lettura del file, è necessario definire cosa succede quando la lettura è completata. Questo è fatto impostando la funzione di callback reader.onloadend.*/
+        reader.readAsDataURL(file); // Inizia la lettura del file
 
-            success: function (response) {
-                loadFilms();
-            },
-            error: function (error) {
-                $('#errore').text(error.responseText);
-            }
-        });
+        /* Se reader.readAsDataURL(file) fosse chiamato prima di impostare reader.onloadend, ci sarebbe il rischio che la lettura del file terminasse prima che la funzione di callback fosse impostata. In tal caso, la funzione di callback non sarebbe chiamata, e il codice all'interno di reader.onloadend non sarebbe eseguito. */
     }
 }
 
