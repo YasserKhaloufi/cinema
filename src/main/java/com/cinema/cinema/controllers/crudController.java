@@ -20,7 +20,7 @@ import jakarta.servlet.http.HttpSession;
 
 
 @RestController
-public class utilController {
+public class crudController {
 
     dbManager conn = dbManager.getInstance(Settings.dbName, Settings.server, Settings.dbUser, Settings.dbPass); // Connessione al DB
 
