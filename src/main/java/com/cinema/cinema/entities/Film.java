@@ -1,4 +1,4 @@
-package com.cinema.cinema;
+package com.cinema.cinema.entities;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

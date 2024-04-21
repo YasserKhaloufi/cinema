@@ -1,13 +1,17 @@
-package com.cinema.cinema;
+package com.cinema.cinema.controllers;
 
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.cinema.cinema.Settings;
+import com.cinema.cinema.entities.Film;
+import com.cinema.cinema.services.dbManager;
+import com.cinema.cinema.utils.sessionManager;
+
 import jakarta.servlet.http.HttpSession;
 
 /*
@@ -24,18 +28,21 @@ public class redirectController {
 
     dbManager conn = dbManager.getInstance(Settings.dbName, Settings.server, Settings.dbUser, Settings.dbPass); // Connessione al DB
 
+    // Reindirizza alla pagina di login
     @GetMapping("/")
-    public String login() { // Reindirizza alla pagina di login
-        return "html/login";
+    public String login() { 
+        return Settings.loginPage;
     }
 
+    // Reindirizza alla pagina di registrazione
     @GetMapping("/regist")
-    public String regist() { // Reindirizza alla pagina di registrazione
-        return "html/regist";
+    public String regist() { 
+        return Settings.signUpPage;
     }
 
-    // In origine era @GetMapping, ma dato che gli veniva inoltrata la richiesta inviata a /chkLogin (che è POST), ho dovuto cambiare il metodo per supportare entrambi i metodi di richiesta con la notazione @RequestMapping
-    @RequestMapping(value = "/elencoFilm", method = {RequestMethod.GET, RequestMethod.POST})
+    // Reindirizza all'elenco dei film
+    /* La prima volta che accede ad elencoFilm, sarà il server ad occuparsi di bindare il contenuto, principalmente per non visualizzare il pulsante di cancellazione e di inserimento a chi non è admin. Quando filtra invece se ne occupa il client js */
+    @GetMapping(value = "/elencoFilm")
     public String getFilmList(Model model, HttpSession session) {
 
         if(sessionManager.isLoggedIn(session)) {
@@ -43,8 +50,8 @@ public class redirectController {
             List<Film> films = conn.getFilms(); model.addAttribute("films", films); // Riempimento lista film
             List<String> generi = conn.getGeneri(); model.addAttribute("generi", generi); // Riempimento opzioni filtro genere
             
-            // (Servirà per la costruzione della tabella film, per capire se mostrare o meno il pulsante di cancellazione) 
-            model.addAttribute("isAdmin", sessionManager.isAdmin(session));
+             
+            model.addAttribute("isAdmin", sessionManager.isAdmin(session)); // (per capire se mostrare o meno il pulsante di cancellazione)
             return Settings.filmListPage;
         } else {
             model.addAttribute("errore", Settings.notLoggedInError);
@@ -52,6 +59,7 @@ public class redirectController {
         }
     }
 
+    // Reindirizza alla pagina di dettaglio del singolo film dato il suo codice
     @GetMapping("/dettagliFilm")
     public String dettagliFilm(@RequestParam Integer codFilm, Model model, HttpSession session) { 
 
@@ -82,6 +90,12 @@ public class redirectController {
             model.addAttribute("errore", Settings.notLoggedInError);
             return Settings.loginPage;
         }   
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate(); // Cancella tutti i dati di sessione
+        return "html/login";
     }
 
     // @GetMapping("/test1")

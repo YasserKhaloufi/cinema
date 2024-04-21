@@ -1,12 +1,10 @@
 /*
 Appunti:
 
--Per le funzioni di login e registrazione il reindirizzamento viene gestito direttamente dal controller JAVA
 -In jQuery, $('#[id]') is equivalent to document.getElementById('[id]') in plain JavaScript
 -L'utente può modificare il codice per accedere alla lista senza login, perciò ho implementato dei check tramite coockie di sessione nel controller
 */
 
-// Collasso submitLogin e submitRegist in un'unica funzione
 function submitUserInfo(endpoint)
 {
     // Se  è una richiesta di registrazione prima controllo se i campi sono validi
@@ -17,40 +15,39 @@ function submitUserInfo(endpoint)
             // Invio credenziali mediante chiamata AJAX all'apposito endpoint nel controller
             var username = $('#username').val();
             var password = $('#password').val();
-            getNextPage(endpoint, 'POST', { username: username, password: password });
+            sendRequest(endpoint, 'POST', { username: username, password: password }, "/", "");
         }
     }
     else // Altrimenti è una richiesta di login
     {
         var username = $('#username').val();
         var password = $('#password').val();
-        getNextPage(endpoint, 'POST', { username: username, password: password });
+        
+        // Invio credenziali mediante chiamata AJAX all'apposito endpoint nel controller
+        sendRequest(endpoint, 'POST', { username: username, password: password }, "/elencoFilm", "");
+        //getNextPage(endpoint, 'POST', { username: username, password: password });
     }
 }
 
-function getNextPage(endpoint, method, data) {
+// Per invio richieste ai controller, con tanto di redirect in caso di successo
+function sendRequest(endpoint, method, data, successPage, errorPage) {
+
     $.ajax({
         url: endpoint,
         method: method,
         data: data,
         success: function (response) {
-            // Il reindirizzamento verrà gestito dal controller, qui riempio giusto per non mandare in errore AJAX
-            renderPage(response);
+            window.location.href = successPage; // reindirizzamento alla pagina successiva
+            alert(response); 
         },
+        error: function (error) {
+            if(errorPage != "") // Se è stata specificata una pagina di errore
+                window.location.href = errorPage; // reindirizzamento alla pagina di errore
+            else // Altrimenti rimango sulla stessa e visualizzo un messaggio di errore
+                $('#errore').text(error.responseText); 
+        }
     });
-}
 
-function getFilms() {
-
-    // Richiesta all'apposito endpoint nel controller per ottenere la lista dei film
-    $.ajax({
-        url: '/filmList',
-        method: 'GET',
-        dataType: 'json',
-        success: function (response) {
-            renderPage(response);
-        },
-    });
 }
 
 function loadFilms(genere) {
@@ -59,15 +56,14 @@ function loadFilms(genere) {
         url: '/getFilms',
         method: 'GET',
         data: { genere: genere }, // Aggiunto parametro genere
-        dataType: 'json',
         success: function (response) {
             // Se la richiesta ha successo, impagino la lista dei film
-            let films = response.data;
-            $('#listaFilm').html(getTbodyFromFilmList(films));
+            let films = response;
+            $('#listaFilm').html(getTbodyFromFilmList(films)); // inserisco nel tbody della tabella
         },
         error: function (error) {
             // Altrimenti visualizzo un messaggio di errore
-            $('#errore').text(JSON.parse(error.responseText).message);
+            $('#errore').text(error.responseText);
         }
     });
 }
@@ -79,15 +75,13 @@ function loadFilmByCod(codFilm) {
         url: '/getFilm',
         type: 'GET',
         data: { codFilm: codFilm },
-        dataType: 'json', // cosi da non dover fare il parse di response
         success: function (response) {
-            // Se la richiesta ha successo, impagino la lista dei film
-            let film = response.data; // non ho bisogno di fare il parse di data perchè l'oggetto film è già un oggetto JSON (codice java)
+            let film = response
             $('#dettagliFilm').html(getDetailTbodyFromFilm(film));
         },
         error: function (error) {
             // Altrimenti visualizzo un messaggio di errore
-            $('#errore').text(JSON.parse(error.responseText).message);
+            $('#errore').text(error.responseText);
         }
     });
 }
@@ -105,7 +99,7 @@ function deleteFilmByCod(codFilm) {
         },
         error: function (error) {
             // Altrimenti visualizzo un messaggio di errore
-            $('#errore').text(JSON.parse(error.responseText).message);
+            $('#errore').text(error.responseText);
         }
     });
 }
@@ -140,11 +134,23 @@ function inserisciFilm() {
                 loadFilms();
             },
             error: function (error) {
-                $('#errore').text(JSON.parse(error.responseText).message);
+                $('#errore').text(error.responseText);
             }
         });
     }
 }
+
+// function getNextPage(endpoint, method, data) {
+//     $.ajax({
+//         url: endpoint,
+//         method: method,
+//         data: data,
+//         success: function (response) {
+//             // Il reindirizzamento verrà gestito dal controller, qui riempio giusto per non mandare in errore AJAX
+//             renderPage(response);
+//         },
+//     });
+// }
 
 /* Versioni precedenti
 

@@ -93,14 +93,15 @@ function chkFilm() {
     }
 }
 
-// Sostituisce il codice HTML della pagina corrente con quello ricevuto dal controller
-function renderPage(response)
-{
-    document.open(); document.write(response); document.close();
-}
-
-// Svuota il contenuto di tutti gli elementi di tipo input
 function clearForm() {
     $(':input').val(''); 
 };
 
+
+// Sostituisce il codice HTML della pagina corrente con quello ricevuto dal controller
+// function renderPage(response)
+// {
+//     document.open(); document.write(response); document.close();
+// }
+
+// Svuota il contenuto di tutti gli elementi di tipo input

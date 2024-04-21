@@ -1,36 +1,41 @@
-package com.cinema.cinema;
+package com.cinema.cinema.controllers;
 
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.cinema.cinema.Settings;
+import com.cinema.cinema.entities.Film;
+import com.cinema.cinema.services.dbManager;
+import com.cinema.cinema.utils.sessionManager;
+
 import jakarta.servlet.http.HttpSession;
 
 
-@Controller
+@RestController
 public class utilController {
 
     dbManager conn = dbManager.getInstance(Settings.dbName, Settings.server, Settings.dbUser, Settings.dbPass); // Connessione al DB
 
-
+    // Ritorna JSON lista oggetti film
     @GetMapping("/getFilms") 
-    public Object getFilms(@RequestParam(required = false) String genere, Model model, HttpSession session)
+    public Object getFilms(@RequestParam(required = false) String genere, Model model, HttpSession session) // Object perchè ritorno stringa/lista
     {
-        // Dopo gli opportuni controlli di sessione, ritorno l'elenco dei film
         if(sessionManager.isLoggedIn(session))
         {
+            /*in Spring Boot, quando ritorni un oggetto o una lista di oggetti da un controller, il framework automaticamente serializza l'oggetto o la lista in JSON e imposta il tipo MIME della risposta a application/json, così la resp ricevuta lato js è già intepretata di conseguenza senza dover fare parse */
             List<Film> films = conn.getFilms(genere);
-            return new ResponseEntity<>(JSONresponse.ok(films), HttpStatus.OK);
+            return new ResponseEntity<>(films, HttpStatus.OK); // Ritorno la lista di film in formato JSON (la conversione è gestita da Spring Boot)
         }
-        else // Se non è loggato, ritorna la pagina di login
-            model.addAttribute("errore", "Ti piacerebbe, eh? Devi loggarti prima!");
-            return "html/login";
+        else 
+            return new ResponseEntity<>(Settings.notLoggedInError, HttpStatus.UNAUTHORIZED);
     }
 
     @GetMapping("/getFilm") // Dopo gli opportuni controlli di sessione, ritorno l'elenco dei film
@@ -40,11 +45,10 @@ public class utilController {
         if(sessionManager.isLoggedIn(session))
         {
             Film film = conn.getFilmByID(codFilm);
-            return new ResponseEntity<>(JSONresponse.ok(film), HttpStatus.OK);
+            return new ResponseEntity<>(film, HttpStatus.OK);
         }
         else
-            model.addAttribute("errore", "Ti piacerebbe, eh? Devi loggarti prima!");
-            return "html/login";
+            return new ResponseEntity<>(Settings.notLoggedInError, HttpStatus.UNAUTHORIZED);
     }
 
 
@@ -57,18 +61,20 @@ public class utilController {
             if(sessionManager.isAdmin(session))
             {
                 conn.deleteFilm(codFilm);
-                return new ResponseEntity<>(JSONresponse.ok("Film eliminato"), HttpStatus.OK);
+                return new ResponseEntity<>("Film eliminato", HttpStatus.OK);
             }
             else
-                return new ResponseEntity<>(JSONresponse.error("Non sei admin"), HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>("Non sei admin", HttpStatus.UNAUTHORIZED);
         } 
         else
         {
-            model.addAttribute("errore", "Ti piacerebbe, eh? Devi loggarti prima!");
-            return "html/login";
+            return new ResponseEntity<>(Settings.notLoggedInError, HttpStatus.UNAUTHORIZED);
         }
     }
 
+    /* Quando ricevi una richiesta HTTP, il corpo della richiesta viene analizzato e mappato all'oggetto del parametro annotato con @RequestBody. 
+     * In questo caso nel corpo della richiesta è contenuto un oggetto film in formato JSON, che quindi verrà mappato automaticamente a un oggetto film.
+    */
     // TO DO: implementare passaggio file immagine al server
     @PostMapping("/insertFilm")
     public Object insertFilm(@RequestBody Film film, Model model, HttpSession session)
@@ -83,21 +89,14 @@ public class utilController {
                 film.setImmagine(nomeImmagine);
 
                 conn.insertFilm(film);
-                return new ResponseEntity<>(JSONresponse.ok("Film inserito"), HttpStatus.OK);
+                return new ResponseEntity<>("Film inserito", HttpStatus.OK);
             }
             else
-                return new ResponseEntity<>(JSONresponse.error("Non sei admin"), HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>("Non sei admin", HttpStatus.UNAUTHORIZED);
         } 
         else
         {
-            model.addAttribute("errore", "Ti piacerebbe, eh? Devi loggarti prima!");
-            return "html/login";
+            return new ResponseEntity<>(Settings.notLoggedInError, HttpStatus.UNAUTHORIZED);
         }   
-    }
-    
-    @GetMapping("/logout")
-    public String logout(HttpSession session) {
-        session.invalidate(); // Cancella tutti i dati di sessione
-        return "html/login";
     }
 }

@@ -1,4 +1,4 @@
-package com.cinema.cinema;
+package com.cinema.cinema.services;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -6,6 +6,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.cinema.cinema.Settings;
+import com.cinema.cinema.entities.Film;
+import com.cinema.cinema.entities.User;
 
 /*
  * Nel modello MVC questa è la classe service: si colloca tra il Model e il Controller,
@@ -196,16 +200,16 @@ public class dbManager {
     }
 
     // Per ora inutilizzato
-    public void updateField(String table, String field, String value, String condition)
-    {
-        try {
-            PreparedStatement stmt = conn.prepareStatement("UPDATE " + table + " SET " + field + " = ? WHERE " + condition);
-            stmt.setString(1, value);
-            stmt.executeUpdate();
+    // public void updateField(String table, String field, String value, String condition)
+    // {
+    //     try {
+    //         PreparedStatement stmt = conn.prepareStatement("UPDATE " + table + " SET " + field + " = ? WHERE " + condition);
+    //         stmt.setString(1, value);
+    //         stmt.executeUpdate();
             
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //     }
+    // }
 
 }

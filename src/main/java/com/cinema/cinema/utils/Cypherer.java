@@ -1,4 +1,4 @@
-package com.cinema.cinema;
+package com.cinema.cinema.utils;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -29,23 +29,23 @@ public class Cypherer {
     }
 
     //(SHA-256)
-    public static String hash(String str)
-    {
-        MessageDigest digest;
-        StringBuilder sb = new StringBuilder();
+    // public static String hash(String str)
+    // {
+    //     MessageDigest digest;
+    //     StringBuilder sb = new StringBuilder();
 
-        try {
-            digest = MessageDigest.getInstance("SHA-256");
-            byte[] encodedhash = digest.digest(str.getBytes(StandardCharsets.UTF_8));
-            sb = new StringBuilder(2 * encodedhash.length);
-            for(byte b : encodedhash) {
-                sb.append(String.format("%02x", b));
-        }
-        } catch (NoSuchAlgorithmException e) {
-            // Da vedere
-            e.printStackTrace();
-        }
+    //     try {
+    //         digest = MessageDigest.getInstance("SHA-256");
+    //         byte[] encodedhash = digest.digest(str.getBytes(StandardCharsets.UTF_8));
+    //         sb = new StringBuilder(2 * encodedhash.length);
+    //         for(byte b : encodedhash) {
+    //             sb.append(String.format("%02x", b));
+    //     }
+    //     } catch (NoSuchAlgorithmException e) {
+    //         // Da vedere
+    //         e.printStackTrace();
+    //     }
 
-        return sb.toString();
-    }
+    //     return sb.toString();
+    // }
 }

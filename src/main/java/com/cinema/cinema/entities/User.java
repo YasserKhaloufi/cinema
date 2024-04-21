@@ -1,10 +1,10 @@
-package com.cinema.cinema;
+package com.cinema.cinema.entities;
 
 public class User {
-    Integer ID;
-    String username;
-    String password;
-    Boolean isAdmin;
+    public Integer ID;
+    public String username;
+    public String password;
+    public Boolean isAdmin;
     
     public User(Integer ID, String username, String password, Boolean isAdmin) {
         this.ID = ID;
