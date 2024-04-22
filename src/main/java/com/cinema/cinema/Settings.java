@@ -1,7 +1,10 @@
 package com.cinema.cinema;
 
 public class Settings {
-    public static final String imgDir = "Images/";
+    public static final String imgDir = "/Images";
+    public static final String inBetweenPath = "/src/main/resources/static";
+    public static final String currentDir = System.getProperty("user.dir");
+    public static final String imgPath = currentDir + inBetweenPath + imgDir;
     
     // DB related
     public static final String dbName = "db_cinema_2024";

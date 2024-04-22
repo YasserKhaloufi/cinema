@@ -107,10 +107,8 @@ function deleteFilmByCod(codFilm) {
 function inserisciFilm() {
     if (chkFilm()) {
 
-        // Adatto la durata a java.sql.Time
-        var durataMinuti = $('#durata').val();
-        var ore = Math.floor(durataMinuti / 60), minuti = durataMinuti % 60, durata = new Date();
-        durata.setHours(ore); durata.setMinutes(minuti); durata = durata.toISOString().slice(11, 19);
+        // Adatto la durata in minuti a java.sql.Time
+        var durata = minutesToTime($('#durata').val());
 
         // Leggi il file come data URL
         var file = document.querySelector('#immagine').files[0];
@@ -137,7 +135,10 @@ function inserisciFilm() {
 
                 success: function (response) {
                     window.location.href = "/elencoFilm"; // Reindirizza alla lista dei film
-                    loadFilms();
+                    // Sleep per dare il tempo al server di salvarsi l'immagine del film
+                    setTimeout(function() {
+                         loadFilms();
+                    }, 1000);
                 },
                 error: function (error) {
                     $('#errore').text(error.responseText);

@@ -1,6 +1,12 @@
 package com.cinema.cinema.controllers;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Base64;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -86,9 +92,9 @@ public class crudController {
             if(sessionManager.isAdmin(session))
             {
                 // Decodifica la stringa base64
-                // byte[] decodedImg = Base64.getDecoder().decode(film.getImmagine().split(",")[1].getBytes(StandardCharsets.UTF_8));
-                // Path destinationFile = Paths.get(Settings.imgDir, film.getTitolo() + ".jpg");
-                // Files.write(destinationFile, decodedImg, StandardOpenOption.CREATE);
+                byte[] decodedImg = Base64.getDecoder().decode(film.getImmagine().split(",")[1].getBytes(StandardCharsets.UTF_8));
+                Path destinationFile = Paths.get(Settings.imgPath, film.getTitolo() + ".jpg");
+                Files.write(destinationFile, decodedImg, StandardOpenOption.CREATE);
 
                 // Imposta il percorso dell'immagine al nome del file
                 film.setImmagine(film.getTitolo() + ".jpg");

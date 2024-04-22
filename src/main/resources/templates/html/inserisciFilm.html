@@ -36,7 +36,9 @@
 
         <br>
 
-        <!-- eventuale errore riscontrato da Java-->
+        <!-- eventuale errore richiesta AJAX-->
+        <p class="errore" id = "errore"></p>
+        <!-- eventuale errore richiesta diretta da barra browser (non c'è js ad occuparsene quindi va inserito via thymeleaf all'interno del tmplt HTML ricevuto)-->
         <p class="errore" th:if="${errore}" th:text="${errore}"></p>
 
         <a href="/elencoFilm">Indietro</a> 
