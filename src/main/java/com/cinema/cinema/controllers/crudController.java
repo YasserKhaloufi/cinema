@@ -67,6 +67,15 @@ public class crudController {
             // Qua è meglio non reloadare la pagina, quindi ritorno un JSON con l'esito dell'operazione che js si occuperà di gestire
             if(sessionManager.isAdmin(session))
             {
+                // Eliminane l'immagine dal server
+                Film film = conn.getFilmByID(codFilm);
+                Path imgPath = Paths.get(Settings.imgPath, film.getImmagine());
+                try {
+                    Files.delete(imgPath);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                
                 conn.deleteFilm(codFilm);
                 return new ResponseEntity<>("Film eliminato", HttpStatus.OK);
             }
